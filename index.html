@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classic Arcade Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            arcade: {
+              primary: '#00FFCC',
+              secondary: '#FF007F',
+              tertiary: '#9900FF',
+              dark: '#0A0E1A',
+              surface: '#131B2E',
+              surfaceVariant: '#1D2840'
+            },
+            vintage: {
+              primary: '#D97706',
+              secondary: '#DC2626',
+              bg: '#FDFBF7',
+              surface: '#F4EEDC',
+              surfaceVariant: '#E8DFCD'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    .neon-glow { text-shadow: 0 0 10px rgba(0,255,204,0.5), 0 0 20px rgba(255,0,127,0.3); }
+  </style>
+</head>
+<body class="bg-[#0A0E1A] text-slate-100 dark:bg-[#0A0E1A] dark:text-slate-100 bg-[#FDFBF7] text-slate-900 min-h-screen flex flex-col transition-colors duration-300" id="bodyRoot">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-opacity-80 bg-[#131B2E] dark:bg-[#131B2E] bg-[#F4EEDC] border-b border-slate-700/50 px-6 py-4 flex items-center justify-between shadow-lg">
+    <div class="flex items-center space-x-3 cursor-pointer" onclick="playSound('click'); showDashboard()">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-400 to-pink-500 flex items-center justify-center text-slate-900 font-black shadow-md">
+        <i class="fa-solid fa-gamepad text-xl"></i>
+      </div>
+      <span class="text-xl font-black tracking-wider neon-glow text-cyan-400">CLASSIC ARCADE</span>
+    </div>
+    
+    <div class="flex items-center space-x-4">
+      <button onclick="playSound('click'); showLeaderboard()" class="px-3 py-2 rounded-xl bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 font-bold text-sm flex items-center space-x-2 transition">
+        <i class="fa-solid fa-trophy"></i>
+        <span class="hidden sm:inline">Leaderboard</span>
+      </button>
+      <button onclick="playSound('click'); showProfile()" class="px-3 py-2 rounded-xl bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 font-bold text-sm flex items-center space-x-2 transition">
+        <i class="fa-solid fa-user"></i>
+        <span class="hidden sm:inline">Profile</span>
+      </button>
+      <button onclick="playSound('click'); toggleTheme()" class="w-10 h-10 rounded-xl bg-slate-800 dark:bg-slate-800 bg-slate-200 text-cyan-400 flex items-center justify-center hover:scale-105 transition" title="Toggle Theme">
+        <i id="themeIcon" class="fa-solid fa-moon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-6">
+    
+    <!-- DASHBOARD VIEW -->
+    <div id="dashboardView" class="space-y-8">
+      <!-- Featured Banner -->
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-pink-600 to-purple-600 p-8 shadow-2xl text-white">
+        <div class="relative z-10 max-w-xl space-y-4">
+          <span class="px-3 py-1 rounded-full bg-white/20 text-xs font-black tracking-widest uppercase">🔥 Featured Game of the Week</span>
+          <h1 class="text-4xl font-black tracking-tight">Royal Ludo</h1>
+          <p class="text-white/90 text-sm sm:text-base">Roll the dice, race your 4 tokens to victory, and challenge AI or friends in real-time mode!</p>
+          <button onclick="playSound('start'); playGame('ludo')" class="px-6 py-3 rounded-xl bg-white text-slate-900 font-extrabold shadow-lg hover:bg-slate-100 transition transform hover:-translate-y-0.5">
+            Play Now <i class="fa-solid fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Core Grid (Snake, Pool, Ludo, Chess) -->
+      <div>
+        <h2 class="text-xl font-black mb-4 flex items-center space-x-2">
+          <i class="fa-solid fa-fire text-pink-500"></i>
+          <span>Featured Classics</span>
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="coreGamesGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- All Arcade Library -->
+      <div>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <h2 class="text-xl font-black">Arcade Library</h2>
+          <div class="flex gap-2 overflow-x-auto pb-2" id="categoryFilters">
+            <button onclick="playSound('click'); filterCategory('All')" class="px-4 py-2 rounded-xl bg-cyan-500 text-slate-900 font-bold text-sm shadow">All</button>
+            <button onclick="playSound('click'); filterCategory('Action')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-sm hover:bg-slate-700 transition">Action</button>
+            <button onclick="playSound('click'); filterCategory('Sports')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-sm hover:bg-slate-700 transition">Sports</button>
+            <button onclick="playSound('click'); filterCategory('Board')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-sm hover:bg-slate-700 transition">Board</button>
+            <button onclick="playSound('click'); filterCategory('Strategy')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-sm hover:bg-slate-700 transition">Strategy</button>
+            <button onclick="playSound('click'); filterCategory('Puzzle')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-sm hover:bg-slate-700 transition">Puzzle</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="arcadeLibraryGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME PLAYER VIEW -->
+    <div id="gameView" class="hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <button onclick="playSound('click'); showDashboard()" class="px-4 py-2 rounded-xl bg-slate-800 text-cyan-400 font-bold flex items-center space-x-2 hover:bg-slate-700 transition">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Back to Dashboard</span>
+        </button>
+        <h2 id="gameTitleHeader" class="text-2xl font-black text-cyan-400">Game</h2>
+        <div></div>
+      </div>
+      <div class="flex justify-center">
+        <div id="gameContainer" class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl flex flex-col items-center max-w-xl w-full">
+          <!-- Dynamic Game Canvas / UI -->
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD VIEW -->
+    <div id="leaderboardView" class="hidden space-y-6 max-w-2xl mx-auto">
+      <div class="flex items-center justify-between">
+        <button onclick="playSound('click'); showDashboard()" class="px-4 py-2 rounded-xl bg-slate-800 text-cyan-400 font-bold flex items-center space-x-2 hover:bg-slate-700 transition">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Back to Dashboard</span>
+        </button>
+        <h2 class="text-2xl font-black text-amber-400">Global Leaderboard</h2>
+        <button onclick="playSound('click'); openSubmitScoreModal()" class="px-4 py-2 rounded-xl bg-cyan-500 text-slate-900 font-bold text-sm">Post Score</button>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4">
+        <div class="flex justify-between items-center text-xs text-slate-400 font-bold uppercase tracking-wider pb-2 border-b border-slate-800">
+          <span>Rank & Player</span>
+          <span>Game</span>
+          <span>Score</span>
+        </div>
+        <div id="leaderboardList" class="space-y-3">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE VIEW -->
+    <div id="profileView" class="hidden space-y-6 max-w-xl mx-auto">
+      <div class="flex items-center justify-between">
+        <button onclick="playSound('click'); showDashboard()" class="px-4 py-2 rounded-xl bg-slate-800 text-cyan-400 font-bold flex items-center space-x-2 hover:bg-slate-700 transition">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Back to Dashboard</span>
+        </button>
+        <h2 class="text-2xl font-black text-cyan-400">Player Profile</h2>
+        <div></div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl space-y-6 text-center">
+        <div class="w-24 h-24 rounded-full bg-cyan-500/20 text-cyan-400 mx-auto flex items-center justify-center text-4xl font-black">
+          <i class="fa-solid fa-user"></i>
+        </div>
+        <div>
+          <h3 id="profileName" class="text-2xl font-black">Arcade Player</h3>
+          <p class="text-sm text-slate-400">arcade.player@local.device</p>
+        </div>
+        <div class="grid grid-cols-3 gap-4 pt-4 border-t border-slate-800">
+          <div class="bg-slate-800/50 p-4 rounded-2xl">
+            <div class="text-2xl font-black text-cyan-400">18</div>
+            <div class="text-xs text-slate-400 uppercase">Wins</div>
+          </div>
+          <div class="bg-slate-800/50 p-4 rounded-2xl">
+            <div class="text-2xl font-black text-pink-500">42</div>
+            <div class="text-xs text-slate-400 uppercase">Played</div>
+          </div>
+          <div class="bg-slate-800/50 p-4 rounded-2xl">
+            <div class="text-2xl font-black text-amber-400">42.8%</div>
+            <div class="text-xs text-slate-400 uppercase">Win Rate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Submit Score Modal -->
+  <div id="submitScoreModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full space-y-4">
+      <h3 class="text-xl font-black">Submit High Score</h3>
+      <div>
+        <label class="text-xs text-slate-400 font-bold uppercase">Select Game</label>
+        <select id="modalGameSelect" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-3 text-white">
+          <option value="Cyber Snake">Cyber Snake</option>
+          <option value="Brick Breaker">Brick Breaker</option>
+          <option value="Neon 8-Ball Pool">Neon 8-Ball Pool</option>
+          <option value="Royal Ludo">Royal Ludo</option>
+          <option value="Grandmaster Chess">Grandmaster Chess</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs text-slate-400 font-bold uppercase">Score</label>
+        <input type="number" id="modalScoreInput" value="250" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-3 text-white">
+      </div>
+      <div class="flex space-x-3 pt-2">
+        <button onclick="playSound('click'); closeSubmitScoreModal()" class="flex-1 py-3 rounded-xl bg-slate-800 font-bold">Cancel</button>
+        <button onclick="playSound('click'); submitNewScore()" class="flex-1 py-3 rounded-xl bg-cyan-500 text-slate-900 font-bold">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Web Audio API Sound Synthesizer
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        const now = ctx.currentTime;
+
+        if (type === 'click') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === 'start') {
+          // Ascending arpeggio for game start
+          osc.type = 'triangle';
+          [300, 450, 600, 800].forEach((freq, idx) => {
+            osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+          });
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'score') {
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+          osc.start(now);
+          osc.stop(now + 0.2);
+        }
+      } catch (e) {
+        console.warn('Web Audio API error:', e);
+      }
+    }
+
+    // Arcade Games Data
+    const games = [
+      { id: 'snake', title: 'Cyber Snake', category: 'Action', desc: 'Guide the neon snake to eat glowing food points.', icon: 'fa-worm', players: '1 Player', diff: 'Medium', core: true },
+      { id: 'pool', title: 'Neon 8-Ball Pool', category: 'Sports', desc: 'Aim, set power, and sink billiard balls into pockets.', icon: 'fa-bowling-ball', players: '1-2 Players', diff: 'Hard', core: true },
+      { id: 'ludo', title: 'Royal Ludo', category: 'Board', desc: 'Roll the dice, race tokens, and block rivals.', icon: 'fa-dice', players: '2-4 Players', diff: 'Medium', core: true },
+      { id: 'chess', title: 'Grandmaster Chess', category: 'Strategy', desc: 'Classic chess engine with AI opponent.', icon: 'fa-chess-knight', players: '1-2 Players', diff: 'Expert', core: true },
+      { id: 'tictactoe', title: 'Tic-Tac-Toe Pro', category: 'Board', desc: 'Classic 3x3 tactical grid battle.', icon: 'fa-table-cells', players: '1-2 Players', diff: 'Easy', core: false },
+      { id: 'memory', title: 'Memory Matrix', category: 'Puzzle', desc: 'Flip cards and match glowing neon pairs.', icon: 'fa-clone', players: '1 Player', diff: 'Medium', core: false },
+      { id: 'brickbreaker', title: 'Brick Breaker', category: 'Action', desc: 'Bounce energy ball off paddle to smash bricks.', icon: 'fa-cubes', players: '1 Player', diff: 'Medium', core: false },
+      { id: 'minesweeper', title: 'Neon Minesweeper', category: 'Puzzle', desc: 'Uncover grid tiles while avoiding cyber-mines.', icon: 'fa-bomb', players: '1 Player', diff: 'Hard', core: false }
+    ];
+
+    let leaderboard = [
+      { name: 'PixelKing', game: 'Cyber Snake', score: 980 },
+      { name: 'CyberViper', game: 'Brick Breaker', score: 920 },
+      { name: 'RetroQueen', game: 'Neon 8-Ball Pool', score: 800 },
+      { name: 'NeonNinja', game: 'Cyber Snake', score: 740 },
+      { name: 'ArcadeAce', game: 'Neon 8-Ball Pool', score: 600 }
+    ];
+
+    let currentTheme = 'dark';
+
+    function toggleTheme() {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      const body = document.getElementById('bodyRoot');
+      const icon = document.getElementById('themeIcon');
+      if (currentTheme === 'light') {
+        body.className = 'bg-[#FDFBF7] text-slate-900 min-h-screen flex flex-col transition-colors duration-300';
+        icon.className = 'fa-solid fa-sun';
+      } else {
+        body.className = 'bg-[#0A0E1A] text-slate-100 min-h-screen flex flex-col transition-colors duration-300';
+        icon.className = 'fa-solid fa-moon';
+      }
+    }
+
+    function renderDashboard() {
+      const coreGrid = document.getElementById('coreGamesGrid');
+      coreGrid.innerHTML = games.filter(g => g.core).map(g => `
+        <div onclick="playSound('start'); playGame('${g.id}')" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-cyan-400 cursor-pointer transition transform hover:-translate-y-1 shadow-lg flex flex-col justify-between h-40">
+          <div class="flex items-center justify-between">
+            <div class="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl">
+              <i class="fa-solid ${g.icon}"></i>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-1 rounded-md bg-cyan-500/10 text-cyan-400">${g.category}</span>
+          </div>
+          <div>
+            <h3 class="font-black text-lg">${g.title}</h3>
+            <p class="text-xs text-slate-400">${g.players}</p>
+          </div>
+        </div>
+      `).join('');
+
+      renderLibrary(games);
+    }
+
+    function renderLibrary(list) {
+      const libGrid = document.getElementById('arcadeLibraryGrid');
+      libGrid.innerHTML = list.map(g => `
+        <div onclick="playSound('start'); playGame('${g.id}')" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 hover:border-cyan-400 cursor-pointer transition flex items-center space-x-4 shadow-lg">
+          <div class="w-14 h-14 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl flex-shrink-0">
+            <i class="fa-solid ${g.icon}"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <h3 class="font-black text-base truncate">${g.title}</h3>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400">${g.category}</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1 line-clamp-1">${g.desc}</p>
+            <div class="flex items-center space-x-3 mt-2 text-[11px] text-slate-500 font-bold">
+              <span><i class="fa-solid fa-users mr-1"></i>${g.players}</span>
+              <span><i class="fa-solid fa-bolt mr-1"></i>${g.diff}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterCategory(cat) {
+      if (cat === 'All') renderLibrary(games);
+      else renderLibrary(games.filter(g => g.category === cat));
+    }
+
+    function showDashboard() {
+      document.getElementById('dashboardView').classList.remove('hidden');
+      document.getElementById('gameView').classList.add('hidden');
+      document.getElementById('leaderboardView').classList.add('hidden');
+      document.getElementById('profileView').classList.add('hidden');
+    }
+
+    function showLeaderboard() {
+      document.getElementById('dashboardView').classList.add('hidden');
+      document.getElementById('gameView').classList.add('hidden');
+      document.getElementById('leaderboardView').classList.remove('hidden');
+      document.getElementById('profileView').classList.add('hidden');
+      renderLeaderboard();
+    }
+
+    function showProfile() {
+      document.getElementById('dashboardView').classList.add('hidden');
+      document.getElementById('gameView').classList.add('hidden');
+      document.getElementById('leaderboardView').classList.add('hidden');
+      document.getElementById('profileView').classList.remove('hidden');
+    }
+
+    function renderLeaderboard() {
+      const list = document.getElementById('leaderboardList');
+      leaderboard.sort((a,b) => b.score - a.score);
+      list.innerHTML = leaderboard.map((item, idx) => `
+        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800/40">
+          <div class="flex items-center space-x-3">
+            <span class="w-7 h-7 rounded-full bg-amber-500/20 text-amber-400 font-black text-xs flex items-center justify-center">#${idx+1}</span>
+            <span class="font-bold text-sm">${item.name}</span>
+          </div>
+          <span class="text-xs text-slate-400">${item.game}</span>
+          <span class="font-black text-amber-400">${item.score} PTS</span>
+        </div>
+      `).join('');
+    }
+
+    function openSubmitScoreModal() {
+      document.getElementById('submitScoreModal').classList.remove('hidden');
+    }
+    function closeSubmitScoreModal() {
+      document.getElementById('submitScoreModal').classList.add('hidden');
+    }
+    function submitNewScore() {
+      playSound('click');
+      const game = document.getElementById('modalGameSelect').value;
+      const score = parseInt(document.getElementById('modalScoreInput').value) || 100;
+      leaderboard.push({ name: 'Arcade Player', game: game, score: score });
+      closeSubmitScoreModal();
+      showLeaderboard();
+    }
+
+    function playGame(id) {
+      document.getElementById('dashboardView').classList.add('hidden');
+      document.getElementById('gameView').classList.remove('hidden');
+      const game = games.find(g => g.id === id);
+      document.getElementById('gameTitleHeader').innerText = game.title;
+
+      const container = document.getElementById('gameContainer');
+      if (id === 'snake') {
+        container.innerHTML = `
+          <div class="text-center space-y-4 w-full">
+            <div class="flex justify-between font-bold text-sm text-slate-400">
+              <span>Score: <span id="snakeScore" class="text-cyan-400">0</span></span>
+              <span>High Score: <span class="text-pink-500">250</span></span>
+            </div>
+            <canvas id="snakeCanvas" width="300" height="300" class="bg-black border border-slate-700 mx-auto rounded-xl shadow-inner"></canvas>
+            <div class="text-xs text-slate-400">Use on-screen buttons or arrow keys to play</div>
+            <div class="grid grid-cols-3 gap-2 max-w-[200px] mx-auto">
+              <div></div>
+              <button onclick="playSound('click'); snakeDir('UP')" class="p-3 bg-slate-800 rounded-xl text-cyan-400 font-bold"><i class="fa-solid fa-arrow-up"></i></button>
+              <div></div>
+              <button onclick="playSound('click'); snakeDir('LEFT')" class="p-3 bg-slate-800 rounded-xl text-cyan-400 font-bold"><i class="fa-solid fa-arrow-left"></i></button>
+              <button onclick="playSound('click'); snakeDir('DOWN')" class="p-3 bg-slate-800 rounded-xl text-cyan-400 font-bold"><i class="fa-solid fa-arrow-down"></i></button>
+              <button onclick="playSound('click'); snakeDir('RIGHT')" class="p-3 bg-slate-800 rounded-xl text-cyan-400 font-bold"><i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+          </div>
+        `;
+        startSnakeGame();
+      } else if (id === 'tictactoe') {
+        container.innerHTML = `
+          <div class="text-center space-y-4 w-full">
+            <div id="tttStatus" class="font-bold text-cyan-400 text-lg">Player X's Turn</div>
+            <div class="grid grid-cols-3 gap-2 max-w-[280px] mx-auto" id="tttBoard">
+              ${[0,1,2,3,4,5,6,7,8].map(i => `<div onclick="playSound('click'); tttClick(${i})" class="w-20 h-20 bg-slate-800 rounded-xl flex items-center justify-center text-3xl font-black text-cyan-400 cursor-pointer hover:bg-slate-700 transition" id="cell-${i}"></div>`).join('')}
+            </div>
+            <button onclick="playSound('click'); resetTTT()" class="px-6 py-2 bg-cyan-500 text-slate-900 font-bold rounded-xl">Restart</button>
+          </div>
+        `;
+        resetTTT();
+      } else {
+        container.innerHTML = `
+          <div class="text-center py-12 space-y-4">
+            <div class="w-20 h-20 bg-cyan-500/20 text-cyan-400 rounded-3xl mx-auto flex items-center justify-center text-3xl">
+              <i class="fa-solid ${game.icon}"></i>
+            </div>
+            <h3 class="text-2xl font-black">${game.title}</h3>
+            <p class="text-sm text-slate-400 max-w-sm mx-auto">${game.desc}</p>
+            <div class="pt-4">
+              <button onclick="playSound('click'); alert('Game session initialized! Ready to play.')" class="px-8 py-3 bg-cyan-500 text-slate-950 font-black rounded-xl shadow-lg">Start Arcade Session</button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // Snake Game Logic
+    let snakeInterval = null;
+    let sDir = 'UP';
+    function startSnakeGame() {
+      const canvas = document.getElementById('snakeCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let snake = [{x: 10, y: 10}, {x: 10, y: 11}, {x: 10, y: 12}];
+      let food = {x: 5, y: 5};
+      let score = 0;
+      sDir = 'UP';
+
+      if (snakeInterval) clearInterval(snakeInterval);
+      snakeInterval = setInterval(() => {
+        let head = {...snake[0]};
+        if (sDir === 'UP') head.y--;
+        if (sDir === 'DOWN') head.y++;
+        if (sDir === 'LEFT') head.x--;
+        if (sDir === 'RIGHT') head.x++;
+
+        if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
+          clearInterval(snakeInterval);
+          alert('Game Over! Score: ' + score);
+          return;
+        }
+
+        if (head.x === food.x && head.y === food.y) {
+          score += 10;
+          playSound('score');
+          document.getElementById('snakeScore').innerText = score;
+          food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)};
+        } else {
+          snake.pop();
+        }
+
+        snake.unshift(head);
+
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, 300, 300);
+
+        ctx.fillStyle = '#FF007F';
+        ctx.fillRect(food.x * 15, food.y * 15, 14, 14);
+
+        snake.forEach((p, idx) => {
+          ctx.fillStyle = idx === 0 ? '#00FFCC' : '#22C55E';
+          ctx.fillRect(p.x * 15, p.y * 15, 14, 14);
+        });
+      }, 130);
+    }
+
+    function snakeDir(d) {
+      if ((d === 'UP' && sDir !== 'DOWN') || (d === 'DOWN' && sDir !== 'UP') ||
+          (d === 'LEFT' && sDir !== 'RIGHT') || (d === 'RIGHT' && sDir !== 'LEFT')) {
+        sDir = d;
+      }
+    }
+
+    // Tic Tac Toe Logic
+    let tttBoard = ['', '', '', '', '', '', '', '', ''];
+    let tttTurn = 'X';
+    let tttActive = true;
+    function resetTTT() {
+      tttBoard = ['', '', '', '', '', '', '', '', ''];
+      tttTurn = 'X';
+      tttActive = true;
+      document.getElementById('tttStatus').innerText = "Player X's Turn";
+      for (let i=0; i<9; i++) {
+        document.getElementById(`cell-${i}`).innerText = '';
+      }
+    }
+    function tttClick(i) {
+      if (!tttActive || tttBoard[i] !== '') return;
+      tttBoard[i] = tttTurn;
+      document.getElementById(`cell-${i}`).innerText = tttTurn;
+      
+      const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+      let won = false;
+      for (let w of wins) {
+        if (tttBoard[w[0]] && tttBoard[w[0]] === tttBoard[w[1]] && tttBoard[w[0]] === tttBoard[w[2]]) {
+          won = true;
+          break;
+        }
+      }
+
+      if (won) {
+        playSound('score');
+        document.getElementById('tttStatus').innerText = `Player ${tttTurn} Wins! 🎉`;
+        tttActive = false;
+      } else if (!tttBoard.includes('')) {
+        document.getElementById('tttStatus').innerText = `It's a Draw!`;
+        tttActive = false;
+      } else {
+        tttTurn = tttTurn === 'X' ? 'O' : 'X';
+        document.getElementById('tttStatus').innerText = `Player ${tttTurn}'s Turn`;
+      }
+    }
+
+    // Initialize
+    window.onload = () => {
+      renderDashboard();
+    };
+  </script>
+</body>
+</html>

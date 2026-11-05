@@ -1,0 +1,30 @@
+{
+  "entities": {
+    "LudoRoom": {
+      "path": "ludo_rooms/{roomId}",
+      "properties": {
+        "roomId": { "type": "string" },
+        "hostUid": { "type": "string" },
+        "guestUid": { "type": "string" },
+        "hostName": { "type": "string" },
+        "guestName": { "type": "string" },
+        "currentPlayer": { "type": "number" },
+        "diceValue": { "type": "number" },
+        "status": { "type": "string" },
+        "tokenPositions": { "type": "array" }
+      }
+    },
+    "LeaderboardEntry": {
+      "path": "leaderboard_scores/{scoreId}",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "gameId": { "type": "string" },
+        "gameTitle": { "type": "string" },
+        "score": { "type": "number" },
+        "timestamp": { "type": "number" }
+      }
+    }
+  }
+}

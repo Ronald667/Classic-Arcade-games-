@@ -1,0 +1,6 @@
+{
+  "name": "Classic Arcade Hub",
+  "description": "A retro arcade dashboard featuring Snake, Pool, Ludo, Chess, and classic arcade games.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
